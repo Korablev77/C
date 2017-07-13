@@ -3,7 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <limits>
-#include "Stack.cpp"
+#include "Stack.h"
 #include "StackElement.h"
 
 
@@ -39,6 +39,10 @@ public:
     throw TestNotPassedException(oss.str()); \
   }\
 }while (false)
+
+//#define ASSERT_TRUE(cond) do { \
+//  if(())
+//}
 
 
 
@@ -79,10 +83,13 @@ TEST(StackPush) {
   StringElement *str1 = new StringElement(std::string("hello"));
   StringElement str2("world");
 
+  s->dump();
+
   s->push(d1);
   s->push(&d2);
   s->push(str1);
   s->push(&str2);
+
 
   ASSERT_EQUAL(s->getCurrentSize(), 4);
   ASSERT_EQUAL((*(StringElement*)s->top()).getValue(), str2.getValue());

@@ -1,25 +1,32 @@
 #include <iostream>
 #include <stddef.h>
 #include <vector>
-#include "helpers.h"
+
+#include <unistd.h>
+#include <fcntl.h>
+
+#include "Helpers.h"
 #include "Stack.h"
 
 
-
+typedef enum {
+  DATA_POINTER_NULL_ERROR,
+  STACK_OVERFLOW
+}StackError;
 
 
 Stack::Stack() : m_size(DEFAULT_STACK_SIZE), m_currentPosition(0) {
   try {
     m_data = new StackElement*[m_size];
   } catch (std::bad_alloc &ex) {
-    std::cerr << "Stack constructor failed. New threw exception. Don't use stack.\n";
+    std::cerr << "Stack constructor failed. Operator new threw exception. Don't use stack.\n";
     std::cerr << ex.what() << std::endl;
     m_data = NULL;
     m_size = 0;
   }
 } 
 
-Stack::Stack(int initSize) :  m_currentPosition(0) {  
+Stack::Stack(const int initSize) :  m_currentPosition(0) {  
   try {
     if (initSize < 1) {
       std::cerr << "Attempt at creatinng stack with zero or negatives size\n";
@@ -31,10 +38,9 @@ Stack::Stack(int initSize) :  m_currentPosition(0) {
 
     m_data = new StackElement*[m_size];
   } catch (std::bad_alloc &ex) {
-      std::cerr << "Stack constructor failed. New threw exception. Don't use stack.\n";
-      std::cerr << ex.what() << std::endl; 
+      std::clog << "Stack constructor failed. New threw exception. Don't use stack.\n";
+      std::clog << ex.what() << std::endl; 
       m_data = NULL;
-      m_size = 0;
   }
 }
 
@@ -50,8 +56,12 @@ Stack::~Stack() {
 }
 
 bool Stack::isOk() const {
+  LOG_TRACE();
+
+  if (m_data == NULL) return DATA_POINTER_NULL_ERROR;
+
   ASSERT(m_data);
-  ASSERT(m_currentPosition >= 0);
+  ASSERT(m_currentPosition >= 0);//$debug
   ASSERT(m_size > 0);
   ASSERT(m_currentPosition < m_size+1);
 
@@ -67,23 +77,53 @@ bool Stack::isEmpty() const {
   return true;
 }
 
-bool Stack::dump(TraverseDirection direction) const {
-  isOk();
+bool Stack::dump(TraverseDirection direction /* = DOWNWARD*/, FILE* fileToDump /* = NULL*/) const {
+  //isOk();
+
+  FILE *logFile = stdout;
+
+  if (fileToDump != NULL && fcntl(fileno(fileToDump), F_GETFL) != -1) {
+    logFile = fileToDump;
+  }
+
+  if (isEmpty()) {
+    fprintf(logFile, "%s \n", "Stack is empty.");;
+    return false;
+  }
+
   switch(direction) {
     case DOWNWARD:
-      std::cout << "STACK FROM TOP TO BOTTOM:\n";
+      fprintf(logFile, "%s\n", "STACK FROM TOP TO BOTTOM: ");
+      fprintf(logFile, "%s\n", "=========================");
+      fprintf(logFile, "Stack address: %p \n", this);
+
       for (int i = m_currentPosition-1; i > -1; --i) {
-        std::cout << i << ". ";
+        fprintf(logFile, "%d. ", i);
+        fprintf(logFile, "%p: ", m_data+i);
         m_data[i]->dump();
+        fprintf(logFile, "\n");
       }
+
+      fprintf(logFile, "%s\n", "=========================\n");
       break;
 
     case UPWARD:
-      std::cout << "STACK: \n";
+      fprintf(logFile, "%s\n", "STACK FROM BOTTOM TO TOP:\n");
+      fprintf(logFile, "%s\n", "=========================");
+      fprintf(logFile, "Stack address: %p \n", this);
+
       for (int i = 0; i < m_currentPosition; ++i) {
-        std::cout << i << ". ";
+        fprintf(logFile, "%d. ", i);
+        fprintf(logFile, "%p: ", m_data+i);
         m_data[i]->dump();
+        fprintf(logFile, "\n");
       }
+
+      fprintf(logFile, "%s\n", "=========================\n");
+      break;
+
+    default:
+      fprintf(logFile, "%s\n", "Unknown direction");
       break;
   }
   return true;
@@ -91,13 +131,15 @@ bool Stack::dump(TraverseDirection direction) const {
 
 bool Stack::push(StackElement *element) {
   isOk();
+  LOG_TRACE();
+  //logger.log("PUSH");
 
   if (m_currentPosition > m_size-1) {
 
     m_size <<= 1;
     
     try {
-      std::cerr << "Reallocating memory\n";
+      std::clog << "Reallocating memory\n";
       StackElement **newDataPtr = new StackElement*[m_size];
       for (int i = 0; i < m_currentPosition; ++i) {
         newDataPtr[i] = m_data[i];
@@ -121,6 +163,7 @@ bool Stack::push(StackElement *element) {
 
 StackElement* Stack::pop() {
   isOk();
+
   if (isEmpty()) {
     std::cerr << "Pop failed: stack is empty.\n";
     return NULL;
@@ -148,28 +191,5 @@ StackElement* Stack::top() const {
   return m_data[m_currentPosition-1];
 }
 
-/*int main()
-{
-    // void f(int x);
-    // void F(Stack s);
-    // f(5);
-    Stack s(1);
-    //StackElement* t1 = new StackElement(20);
-    DoubleElement t2(3);
-    StringElement t3("Dksajbfl");
-    DoubleElement t4(5.3);
-    //StackElement t2(30);
-    //t1.dump();
-    //s.push(&t1);
-    s.push(&t2);
-    s.push(&t3);
-    s.push(&t4);
-    //s.push(t4);
-    t4.setValue(2);
-    s.dump();
-    s.pop();
-    s.dump();
-    //Stack s(20);
-    return 0;
-}*/
+
 

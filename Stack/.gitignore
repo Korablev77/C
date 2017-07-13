@@ -1,0 +1,11 @@
+*.o
+*.obj
+*.elf
+*.lib
+*.a
+*.so
+*.so.*
+*.exe
+*.out
+*.app
+*.dSYM/

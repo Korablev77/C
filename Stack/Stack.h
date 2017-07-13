@@ -12,21 +12,24 @@ typedef enum {
 class Stack {
 public:
   Stack();
-  explicit Stack(int initSize);
+  explicit Stack(const int initSize);
   ~Stack();
 
   bool isOk() const;
-  bool dump(TraverseDirection direction = DOWNWARD) const;
+  bool dump(TraverseDirection direction = DOWNWARD, FILE* fileToDump = NULL) const;
 
-  bool          push(StackElement* element);
+  bool          push(StackElement  *element);
   StackElement* pop();
   StackElement* top() const;
   size_t        getCurrentSize() const;
   size_t        getSize() const;
   bool          isEmpty() const;
 
-  const static int DEFAULT_STACK_SIZE = 1;
+  const static size_t DEFAULT_STACK_SIZE = 1;
 private:
+  Stack(const Stack &);
+  const Stack& operator=(const Stack &);
+  //static StackLogger logger;
   //std::unique_ptr< std::shared_ptr<StackElement*> > m_data;
   StackElement **m_data;
   size_t m_size;
