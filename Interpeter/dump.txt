@@ -1,0 +1,122 @@
+Start logging by Global Logger
+LOG: Global Logger 00:39:55 === Lexer starts parsing ===
+LOG: Global Logger 00:39:55 Processing expression: x*x
+LOG: Global Logger 00:39:55 Current symbol is x
+LOG: Global Logger 00:39:55 Lexer is recognizing id: x
+LOG: Global Logger 00:39:55 Recognized token: x
+LOG: Global Logger 00:39:55 Current symbol is *
+LOG: Global Logger 00:39:55 Lexer is recognizing service symbol: *
+LOG: Global Logger 00:39:55 Recognized token: *
+LOG: Global Logger 00:39:55 Current symbol is x
+LOG: Global Logger 00:39:55 Lexer is recognizing id: x
+LOG: Global Logger 00:39:55 Recognized token: x
+LOG: Global Logger 00:39:55 ===Lexer ends parsing===
+LOG: Global Logger 00:39:55 ===Token holder dump===
+LOG: Global Logger 00:39:55 x
+LOG: Global Logger 00:39:55 *
+LOG: Global Logger 00:39:55 x
+LOG: Global Logger 00:39:55 
+LOG: Global Logger 00:39:55 ===End of dump===
+LOG: Global Logger 00:39:55 === Building AST ===
+LOG: Global Logger 00:39:55 Creating variable node: x
+LOG: Global Logger 00:39:55 Creating variable node: x
+LOG: Global Logger 00:39:55 Creating binary operator node...
+LOG: Global Logger 00:39:55 === AST was created. Root is *
+LOG: Global Logger 00:39:55 Semantic checking...
+LOG: Global Logger 00:39:55 Binary operator*
+LOG: Global Logger 00:39:55 LHS:140416838019024
+LOG: Global Logger 00:39:55 RHS:140416838019056
+LOG: Global Logger 00:39:55 LHS addr:140734647350336
+LOG: Global Logger 00:39:55 RHS addr:140734647350328
+LOG: Global Logger 00:39:55 Binary operator*
+LOG: Global Logger 00:39:55 LHS:140416838019024
+LOG: Global Logger 00:39:55 RHS:140416838019056
+LOG: Global Logger 00:39:55 LHS addr:140734647350336
+LOG: Global Logger 00:39:55 RHS addr:140734647350328
+LOG: Global Logger 00:39:55 === AST DUMP ===
+LOG: Global Logger 00:39:55 LHS: 
+LOG: Global Logger 00:39:55 x
+LOG: Global Logger 00:39:55 Binary op: 
+LOG: Global Logger 00:39:55 *
+LOG: Global Logger 00:39:55 RHS: 
+LOG: Global Logger 00:39:55 x
+LOG: Global Logger 00:39:55 Root is *
+LOG: Global Logger 00:39:55 === DUMP END ===
+LOG: Global Logger 00:39:55 Deleting binary operator with address: 140416838019088
+LOG: Global Logger 00:39:55 And lhs: 140416838019024
+LOG: Global Logger 00:39:55 And rhs: 140416838019056
+LOG: Global Logger 00:40:01 === Lexer starts parsing ===
+LOG: Global Logger 00:40:01 Processing expression: x*x*x
+LOG: Global Logger 00:40:01 Current symbol is x
+LOG: Global Logger 00:40:01 Lexer is recognizing id: x
+LOG: Global Logger 00:40:01 Recognized token: x
+LOG: Global Logger 00:40:01 Current symbol is *
+LOG: Global Logger 00:40:01 Lexer is recognizing service symbol: *
+LOG: Global Logger 00:40:01 Recognized token: *
+LOG: Global Logger 00:40:01 Current symbol is x
+LOG: Global Logger 00:40:01 Lexer is recognizing id: x
+LOG: Global Logger 00:40:01 Recognized token: x
+LOG: Global Logger 00:40:01 Current symbol is *
+LOG: Global Logger 00:40:01 Lexer is recognizing service symbol: *
+LOG: Global Logger 00:40:01 Recognized token: *
+LOG: Global Logger 00:40:01 Current symbol is x
+LOG: Global Logger 00:40:01 Lexer is recognizing id: x
+LOG: Global Logger 00:40:01 Recognized token: x
+LOG: Global Logger 00:40:01 ===Lexer ends parsing===
+LOG: Global Logger 00:40:01 ===Token holder dump===
+LOG: Global Logger 00:40:01 x
+LOG: Global Logger 00:40:01 *
+LOG: Global Logger 00:40:01 x
+LOG: Global Logger 00:40:01 *
+LOG: Global Logger 00:40:01 x
+LOG: Global Logger 00:40:01 
+LOG: Global Logger 00:40:01 ===End of dump===
+LOG: Global Logger 00:40:01 === Building AST ===
+LOG: Global Logger 00:40:01 Creating variable node: x
+LOG: Global Logger 00:40:01 Creating variable node: x
+LOG: Global Logger 00:40:01 Creating binary operator node...
+LOG: Global Logger 00:40:01 Creating variable node: x
+LOG: Global Logger 00:40:01 Creating binary operator node...
+LOG: Global Logger 00:40:01 === AST was created. Root is *
+LOG: Global Logger 00:40:01 Semantic checking...
+LOG: Global Logger 00:40:01 Binary operator*
+LOG: Global Logger 00:40:01 LHS:140416838019712
+LOG: Global Logger 00:40:01 RHS:140416838019744
+LOG: Global Logger 00:40:01 LHS addr:140734647350336
+LOG: Global Logger 00:40:01 RHS addr:140734647350328
+LOG: Global Logger 00:40:01 Binary operator*
+LOG: Global Logger 00:40:01 LHS:140416838018576
+LOG: Global Logger 00:40:01 RHS:140416838018480
+LOG: Global Logger 00:40:01 LHS addr:140734647342240
+LOG: Global Logger 00:40:01 RHS addr:140734647342232
+LOG: Global Logger 00:40:01 Binary operator*
+LOG: Global Logger 00:40:01 LHS:140416838019712
+LOG: Global Logger 00:40:01 RHS:140416838019744
+LOG: Global Logger 00:40:01 LHS addr:140734647350336
+LOG: Global Logger 00:40:01 RHS addr:140734647350328
+LOG: Global Logger 00:40:01 Binary operator*
+LOG: Global Logger 00:40:01 LHS:140416838018576
+LOG: Global Logger 00:40:01 RHS:140416838018480
+LOG: Global Logger 00:40:01 LHS addr:140734647342240
+LOG: Global Logger 00:40:01 RHS addr:140734647342232
+LOG: Global Logger 00:40:01 === AST DUMP ===
+LOG: Global Logger 00:40:01 LHS: 
+LOG: Global Logger 00:40:01 LHS: 
+LOG: Global Logger 00:40:01 x
+LOG: Global Logger 00:40:01 Binary op: 
+LOG: Global Logger 00:40:01 *
+LOG: Global Logger 00:40:01 RHS: 
+LOG: Global Logger 00:40:01 x
+LOG: Global Logger 00:40:01 Binary op: 
+LOG: Global Logger 00:40:01 *
+LOG: Global Logger 00:40:01 RHS: 
+LOG: Global Logger 00:40:01 x
+LOG: Global Logger 00:40:01 Root is *
+LOG: Global Logger 00:40:01 === DUMP END ===
+LOG: Global Logger 00:40:01 Deleting binary operator with address: 140416838019712
+LOG: Global Logger 00:40:01 And lhs: 140416838018576
+LOG: Global Logger 00:40:01 And rhs: 140416838018480
+LOG: Global Logger 00:40:01 Deleting binary operator with address: 140416838019776
+LOG: Global Logger 00:40:01 And lhs: 140416838019712
+LOG: Global Logger 00:40:01 And rhs: 140416838019744
+LOG: Global Logger 00:40:06 Erasing all elements from symbol table.
