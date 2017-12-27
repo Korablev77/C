@@ -91,6 +91,8 @@ runMasterThread(const ProgramParameters *params) {
 	void *threadStatus;
 	Particle *currParticle = crystal->cells[0]->headParticle;
 	workStop = 0;
+	workReady = 0;
+	currentlyIdle = 0;
 
 	/* Prepare args and create threads. */
 	for (size_t i = 0; i < params->numbOfThreads; ++i) {
@@ -103,22 +105,49 @@ runMasterThread(const ProgramParameters *params) {
 	
 	if (params->mode == ITERATION_LIMIT) {
 		assert(params->numbOfIterations > 0);
-		for (uint32_t iter = 0; iter < params->numbOfIterations; ++iter)
+
+		fprintf(stdout, "Simulating brownian motion in iteration mode...\n");
+		time_t timeBeforeStart;
+		time(&timeBeforeStart);
+		for (uint32_t iter = 0; iter < params->numbOfIterations; ++iter) {	
 			runIteration(crystal, params->numbOfThreads);
+			/* Through iterations display state of crystal
+			 * fixed amount of times.
+			 */
+			if ((iter + 1) % 
+			    (params->numbOfIterations / DEFAULT_DISPLAY_TIMES) == 0)
+				displayCrystal(crystal);
+		}
+		time_t timeAfterEnd;
+		time(&timeAfterEnd);
+		if (timeAfterEnd - timeBeforeStart == 0)
+			fprintf(stdout, "Can't calculate elapsed time:" \
+					"execution has occured too fast. \n");
+		else
+			fprintf(stdout, "Elapsed time: %lu sec \n", 
+				timeAfterEnd - timeBeforeStart);
 	} else {
 		assert(params->executionTime > 0);
+
+		fprintf(stdout, "Simulating brownian motion in time mode...\n");
 		time_t timeToEnd = params->executionTime;
 		time_t timeBeforeIter;
-		time_t tiemAfterIter;
+		time_t timeAfterIter;
 		while (timeToEnd > 0) {
 			time(&timeBeforeIter);
 			runIteration(crystal, params->numbOfThreads);
-			time(&tiemAfterIter);;
-			timeToEnd -= (tiemAfterIter - timeBeforeIter);
+			time(&timeAfterIter);
+			displayCrystal(crystal);
+			timeToEnd -= (timeAfterIter - timeBeforeIter);
 		}
 	}
 
+	fprintf(stdout, "Execution is completed. \n");
 	workStop = 1;
+	pthread_mutex_lock(&workReadyMutex);
+	workReady = 1;
+	pthread_cond_broadcast(&workReadyCond);
+	pthread_mutex_unlock(&workReadyMutex);
 	
 	for (size_t i = 0; i < params->numbOfThreads; ++i) {
 		if (pthread_join(threads[i], &threadStatus)) {
@@ -191,9 +220,11 @@ simulateBrownianMotion(Crystal *crystal, Particle *particle) {
 		pthread_mutex_unlock(&currentlyIdleMutex);
 		
 		pthread_mutex_lock(&workReadyMutex);
-		while (!workReady && !workStop)
+		while (!workReady)
 			pthread_cond_wait(&workReadyCond, &workReadyMutex);
 		pthread_mutex_unlock(&workReadyMutex);
+
+		if (workStop) return;
 
 		simulateOneParticle(crystal, particle);
 		
@@ -292,15 +323,21 @@ setParameters(const char* command, ProgramParameters *params) {
 			}
 			params->numbOfParticles = newNumbOfParticles;
 			params->numbOfThreads = params->numbOfParticles;
+			fprintf(stdout, "Set new number of particles to %d\n", 
+				params->numbOfParticles);
 			return;
 		}
 
 		if (0 == strcmp(pch, "mode")) {
 			pch = strtok(NULL, " ,.=");
-			if (0 == strcmp(pch, "iterations"))
+			if (0 == strcmp(pch, "iterations")) {
 				params->mode = ITERATION_LIMIT;
-			if (0 == strcmp(pch, "time"))
+				fprintf(stdout, "Set new mode to iterations\n");
+			}
+			else if (0 == strcmp(pch, "time")) {
 				params->mode = TIME_LIMIT;
+				fprintf(stdout, "Set new mode to time\n");
+}
 			else {
 				fprintf(stdout, "%s \n", 
 					"Error: can't read type of mode.");
@@ -317,6 +354,8 @@ setParameters(const char* command, ProgramParameters *params) {
 				return;
 			}
 			params->crystalLength = newLength;
+			fprintf(stdout, "Set new length to %d\n", 
+				params->crystalLength);
 			return;
 		}
 
@@ -329,6 +368,8 @@ setParameters(const char* command, ProgramParameters *params) {
 				return;
 			}
 			params->numbOfIterations = newNumbOfIterations;
+			fprintf(stdout, "Set new iterations number to %d\n",
+				params->numbOfIterations);
 			return;
 		}
 
@@ -341,11 +382,38 @@ setParameters(const char* command, ProgramParameters *params) {
 				return;
 			}
 			params->executionTime = newExecutionTime;
+			fprintf(stdout, "Set new execution time to %lu\n",
+				params->executionTime);
 			return;
 		}
 
+		if (0 == strcmp(pch, "probability")) {
+			pch = strtok(NULL, " ,.=");
+			long int newProbability = strtol(pch, NULL, 10 /* base */);
+			if (0 >= newProbability) {
+				fprintf(stdout, "%s \n", 
+					"Error: can't read probability.");
+				return;
+			}
+			params->probability = convertIntToMantissa(newProbability);
+			assert(params->probability <= 1);
+			fprintf(stdout, "Set new probability to %f\n",
+				params->probability);
+			return;
+		}
 		pch = strtok(NULL, " ,.=");
 	}
+}
+
+static double
+convertIntToMantissa(long int x) {
+	assert(x >= 0);	
+
+	double mantissa = (double) x;
+	while (mantissa > 1) {
+		mantissa /= (double) 10;
+	}	
+	return mantissa;
 }
 
 void
@@ -356,6 +424,10 @@ info(const ProgramParameters *params) {
 		params->crystalLength, params->numbOfParticles,
 		params->numbOfIterations, params->probability, 
 		params->executionTime);
+	if (params->mode == ITERATION_LIMIT)
+		fprintf(stdout, "Execution mode = iterations\n");
+	else
+		fprintf(stdout, "Execution mode = time\n");
 }
 
 static Particle* 
@@ -491,6 +563,7 @@ displayCrystal(const Crystal *crystal) {
 		"probability = %lg\n", crystal->length, crystal->numbOfParticles,
 		crystal->probabilityToMoveLeft);
 	uint32_t particlesInCell;
+	uint32_t totalNumbOfParticles = 0;
 	Particle *currParticle;
 	for (size_t i = 0; i < crystal->length; ++i) {
 		particlesInCell = 0;
@@ -499,9 +572,11 @@ displayCrystal(const Crystal *crystal) {
 			currParticle = currParticle->pNext;
 			particlesInCell++;
 		}
+		totalNumbOfParticles += particlesInCell;
 		fprintf(stdout, " %lu: %d |", i, particlesInCell); 
 	}
-	fprintf(stdout, "\n--------------------------------------\n");
+	fprintf(stdout, "\n Total number of particles: %u \n", totalNumbOfParticles);
+	fprintf(stdout, "--------------------------------------\n");
 }
 
 

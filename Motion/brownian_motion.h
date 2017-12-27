@@ -107,6 +107,8 @@ const uint32_t DEFAULT_NUMB_OF_PARTICLES = 6;
 const uint32_t DEFAULT_NUMB_OF_ITERATIONS = 10;
 const double DEFAULT_PROBABILITY = 0.5;
 const time_t DEFAULT_EXECUTION_TIME = 10;
+const time_t DEFAULT_ITERATION_DELAY = 1;
+const uint32_t DEFAULT_DISPLAY_TIMES = 4;
 
 /* This function implemets routine for master-thread. 
  * To be more precise, it creates and joins all other threads and provides 
@@ -120,7 +122,7 @@ static void
 runIteration(Crystal *, uint32_t);
 
 /* Display info about program parameters. */
-voids
+void
 info(const ProgramParameters *);
 
 void*
@@ -191,6 +193,9 @@ getTail(const Particle *);
 /* Nondeterministic function: returns random value in range [0, 1] */
 double
 getProb();
+
+static double
+convertIntToMantissa(long int);
 
 /* Based on current position and length of crystal returns direction to move. */
 static int
