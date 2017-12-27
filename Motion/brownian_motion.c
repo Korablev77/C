@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdint.h>
+#include <unistd.h>
 #include <string.h>
 #include <time.h>
 
@@ -133,9 +134,15 @@ runMasterThread(const ProgramParameters *params) {
 		time_t timeToEnd = params->executionTime;
 		time_t timeBeforeIter;
 		time_t timeAfterIter;
+		time_t delayedTime;
 		while (timeToEnd > 0) {
 			time(&timeBeforeIter);
 			runIteration(crystal, params->numbOfThreads);
+			time(&delayedTime);
+			while (delayedTime - timeBeforeIter < params->iterationDelay) {
+				sleep(1);
+				time(&delayedTime);
+			}
 			time(&timeAfterIter);
 			displayCrystal(crystal);
 			timeToEnd -= (timeAfterIter - timeBeforeIter);
@@ -304,6 +311,7 @@ setDefaultParameters(ProgramParameters *params) {
 	params->probability = DEFAULT_PROBABILITY;
 	params->mode = ITERATION_LIMIT;
 	params->executionTime = DEFAULT_EXECUTION_TIME;
+	params->iterationDelay = DEFAULT_ITERATION_DELAY;
 }
 
 void 
@@ -401,6 +409,21 @@ setParameters(const char* command, ProgramParameters *params) {
 				params->probability);
 			return;
 		}
+
+		if (0 == strcmp(pch, "delay")) {
+			pch = strtok(NULL, " ,.=");
+			long int newDelay = strtol(pch, NULL, 10 /* base */);
+			if (0 >= newDelay) {
+				fprintf(stdout, "%s \n",
+					"Error: can't read delay.");
+				return;
+			}
+			params->iterationDelay = newDelay;
+			fprintf(stdout, "Set new delay to %ld\n",
+				params->iterationDelay);
+			return;
+		}
+
 		pch = strtok(NULL, " ,.=");
 	}
 }
@@ -420,10 +443,11 @@ void
 info(const ProgramParameters *params) {
 	fprintf(stdout, "Crystal state: \n");
 	fprintf(stdout, "Length = %d\nNumber of particles = %d\n"\
-		"Number of iterations = %d\nProbability = %lg\nTime = %ld\n", 
+		"Number of iterations = %d\nProbability = %lg\nTime = %ld\n"\
+		"Iteration delay = %ld\n",
 		params->crystalLength, params->numbOfParticles,
 		params->numbOfIterations, params->probability, 
-		params->executionTime);
+		params->executionTime, params->iterationDelay);
 	if (params->mode == ITERATION_LIMIT)
 		fprintf(stdout, "Execution mode = iterations\n");
 	else

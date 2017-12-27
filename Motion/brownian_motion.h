@@ -66,6 +66,7 @@ typedef struct ProgramParameters {
 	uint32_t numbOfThreads;
 	uint32_t numbOfIterations;
 	time_t executionTime;
+	time_t iterationDelay;
 	double probability;
 	ExecutionMode mode;
 } ProgramParameters;
